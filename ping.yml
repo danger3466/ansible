@@ -1,0 +1,9 @@
+---
+- name: Installs
+  hosts: WINDOWS
+
+  tasks:
+
+  - name: Ping my Servers
+    win_ping:
+

@@ -1,0 +1,6 @@
+ansible.log
+ping.retry
+files/*.exe
+files/*.msi
+hosts.txt
+group_vars/WINDOWS

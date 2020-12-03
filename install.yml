@@ -1,0 +1,127 @@
+---
+- name: Installs
+  hosts: WINDOWS
+
+  tasks:
+
+  - name: Ensure Chocolatey installed from internal repo
+    win_chocolatey:
+      name: chocolatey
+      state: present
+      source: https://chocolatey.org/install.ps1
+
+  - name: Hide ansible user
+    win_regedit:
+      path: HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\SpecialAccounts\UserList\
+      name: ansible
+      type: dword
+      data: 0
+
+#  - name: Uninstall Google Update Helper
+#    win_package:
+#      product_id: '{60EC980A-BDA2-4CB6-A427-B07A5498B4CA}'
+#      state: absent
+
+  - name: TightVNC
+    win_chocolatey:
+      name: tightvnc
+      state: present
+
+  - name: TightVNC (password)
+    win_regedit:
+      path: HKLM:\SOFTWARE\TightVNC\Server
+      name: Password
+      type: binary
+      data: "{{ tightvnc_password }}"
+    register: tightvnc
+
+  - name: TightVNC (ControlPassword)
+    win_regedit:
+      path: HKLM:\SOFTWARE\TightVNC\Server
+      name: ControlPassword
+      type: binary
+      data: "{{ tightvnc_password }}"
+
+  - name: TightVNC (PasswordViewOnly)
+    win_regedit:
+      path: HKLM:\SOFTWARE\TightVNC\Server
+      name: PasswordViewOnly
+      type: binary
+      data: "{{ tightvnc_password }}"
+
+  - name: TightVNC (UseVncAuthentication)
+    win_regedit:
+      path: HKLM:\SOFTWARE\TightVNC\Server
+      name: UseVncAuthentication
+      type: dword
+      data: 1
+
+  - name: TightVNC (restart)
+    win_service:
+      name: tvnserver
+      state: restarted
+    when: tightvnc.changed
+
+  - name: Google Chrome
+    win_chocolatey:
+      name: googlechrome
+      state: present
+
+  - name: Firefox
+    win_chocolatey:
+      name: firefox
+      state: present
+
+  - name: Thunderbird
+    win_chocolatey:
+      name: thunderbird
+      state: present
+
+  - name: Addobe Reader DC
+    win_chocolatey:
+      name: adobereader
+      state: present
+
+  - name: WinRAR
+    win_chocolatey:
+      name: winrar
+      state: present
+
+  - name: VLC
+    win_chocolatey:
+      name: vlc
+      state: present
+
+
+#  - name: ESET Endpoint Antivirus
+#    win_chocolatey:
+#      name: eset-antivirus
+#      state: present
+
+
+
+
+#  - name: ESET Agent (make folder)
+#    win_file:
+#      path: "c:\\Downloads"
+#      state: directory
+
+#  - name: ESET Agent (download x86)
+#    win_copy:
+#      src: files/agent_x86.msi
+#      dest: "c:\\Downloads\\agent.msi"
+#    when: ansible_architecture == "32-bit"
+
+#  - name: ESET Agent (download x64)
+#    win_copy:
+#      src: files/agent_x64.msi
+#      dest: "c:\\Downloads\\agent.msi"
+#    when: ansible_architecture == "64-bit"
+
+#  - name: ESET Agent (install)
+#    win_package:
+#      path: "c:\\Downloads\\agent.msi"
+#      arguments:
+#        - /quiet
+
+
