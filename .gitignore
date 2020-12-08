@@ -1,6 +1,7 @@
 ansible.log
-ping.retry
+*.retry
 files/*.exe
 files/*.msi
+files/install_config.ini
 hosts.txt
 group_vars/WINDOWS

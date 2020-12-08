@@ -1,5 +1,5 @@
 ---
-- name: Installs
+- name: Installs for WINDOWS
   hosts: WINDOWS
 
   tasks:
@@ -16,6 +16,25 @@
       name: ansible
       type: dword
       data: 0
+
+  - name: Drop Ansible dir
+    win_file:
+      path: "C:\\Ansible"
+      state: absent
+
+  - name: Find %USERPROFILE%
+    win_shell: echo %USERPROFILE%
+    args:
+      executable: cmd
+    register: USERPROFILE
+
+#  - debug:
+#      msg: "{{USERPROFILE}}"
+
+  - name: Make Downloads folder
+    win_file:
+      path: "{{USERPROFILE.stdout_lines[0]}}\\Downloads"
+      state: directory
 
 #  - name: Uninstall Google Update Helper
 #    win_package:
@@ -62,6 +81,119 @@
       state: restarted
     when: tightvnc.changed
 
+#  - name: WinRAR
+#    win_chocolatey:
+#      name: winrar
+#      state: present
+
+  - name: WinRAR (download x86)
+    win_copy:
+      src: files/wrar591ru.exe
+      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\winrar.exe"
+    when: ansible_architecture == "32-bit" or ansible_architecture == "32-разрядная"
+
+  - name: WinRAR (download x64)
+    win_copy:
+      src: files/winrar-x64-591ru.exe
+      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\winrar.exe"
+    when: ansible_architecture == "64-bit" or ansible_architecture == "64-разрядная"
+
+  - name: "WinRAR (Check C:\\Program Files\\WinRAR\\WinRAR.exe)"
+    win_stat: path="C:\\Program Files\\WinRAR\\WinRAR.exe"
+    register: winrar
+
+  - name: "WinRAR (Check C:\\Program Files (x86)\\WinRAR\\WinRAR.exe)"     
+    win_stat: path="C:\\Program Files (x86)\\WinRAR\\WinRAR.exe"
+    register: winrar_x86
+    when: not winrar.stat.exists
+
+  - name: WinRAR (install)
+    win_command: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\winrar.exe /s"
+    when: not (winrar.stat.exists or winrar_x86.stat.exists)
+
+
+  - name: Uninstall ESET Endpoint Security 5
+    win_package:
+      product_id: '{47A99185-5A10-475E-ACFD-34F654E201D1}'
+      state: absent
+
+  - name: ESET Agent (config)
+    win_copy:
+      src: files/install_config.ini
+      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\install_config.ini"
+
+  - name: ESET Agent (download x86)
+    win_copy:
+      src: files/agent_x86.msi
+      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\agent.msi"
+    when: ansible_architecture == "32-bit" or ansible_architecture == "32-разрядная"
+
+  - name: ESET Agent (download x64)
+    win_copy:
+      src: files/agent_x64.msi
+      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\agent.msi"
+    when: ansible_architecture == "64-bit" or ansible_architecture == "64-разрядная"
+
+  - name: "ESET Agent (Check C:\\Program Files\\ESET\\RemoteAdministrator\\Agent)"     
+    win_stat: path="C:\\Program Files\\ESET\\RemoteAdministrator\\Agent"
+    register: eset_agent
+
+  - name: ESET Agent (install)
+    win_shell: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\agent.msi /quiet"
+    args:
+      executable: cmd
+    when: not eset_agent.stat.exists
+
+#  - name: ESET Endpoint Antivirus (choco)
+#    win_chocolatey:
+#      name: eset-antivirus
+#      state: present
+
+#  - name: Install windows updates for ESET
+#    win_updates:
+#      whitelist:
+#        - KB4474419
+#        - KB4490628
+#    when: ansible_distribution_major_version|int == 6
+
+  - name: ESET Endpoint 7 (download x86)
+    win_copy:
+      src: files/eea_nt32.msi
+      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\eea.msi"
+    when: (ansible_architecture == "32-bit" or ansible_architecture == "32-разрядная") and ansible_distribution_major_version|int > 6
+
+  - name: ESET Endpoint 7 (download x64)
+    win_copy:
+      src: files/eea_nt64.msi
+      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\eea.msi"
+    when: (ansible_architecture == "64-bit" or ansible_architecture == "64-разрядная") and ansible_distribution_major_version|int > 6
+
+  - name: ESET Endpoint 6 (download x86)
+    win_copy:
+      src: files/eea_nt32_6.msi
+      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\eea.msi"
+    when: (ansible_architecture == "32-bit" or ansible_architecture == "32-разрядная") and ansible_distribution_major_version|int == 6
+
+  - name: ESET Endpoint 6 (download x64)
+    win_copy:
+      src: files/eea_nt64_6.msi
+      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\eea.msi"
+    when: (ansible_architecture == "64-bit" or ansible_architecture == "64-разрядная") and ansible_distribution_major_version|int == 6
+
+  - name: ESET Endpoint (install)
+    win_package:
+      path: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\eea.msi"
+      arguments: 'ACTIVATION_DATA="{{ eset_key }}" FIRSTSCAN_ENABLE=0'
+
+- name: Installs for OFFICE
+  hosts: OFFICE
+
+  tasks:
+#  - name: 1C:Предприятие 8 (8.3.15.1565)
+#    win_package:
+#      product_id: '{49F75FA7-719B-429D-B44D-4C5D52254FFC}'
+#      state: absent
+
   - name: Google Chrome
     win_chocolatey:
       name: googlechrome
@@ -77,51 +209,23 @@
       name: thunderbird
       state: present
 
-  - name: Addobe Reader DC
+  - name: "Adobe Reader DC (Check C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC)"     
+    win_stat: path="C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC"
+    register: adobe_reader
+
+  - name: "Adobe Reader DC (Check C:\\Program Files\\Adobe\\Acrobat Reader DC)"     
+    win_stat: path="C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC"
+    register: adobe_reader_x86
+
+  - name: Adobe Reader DC
     win_chocolatey:
       name: adobereader
       state: present
-
-  - name: WinRAR
-    win_chocolatey:
-      name: winrar
-      state: present
+    when: not (adobe_reader.stat.exists or adobe_reader_x86.stat.exists)
 
   - name: VLC
     win_chocolatey:
       name: vlc
       state: present
-
-
-#  - name: ESET Endpoint Antivirus
-#    win_chocolatey:
-#      name: eset-antivirus
-#      state: present
-
-
-
-
-#  - name: ESET Agent (make folder)
-#    win_file:
-#      path: "c:\\Downloads"
-#      state: directory
-
-#  - name: ESET Agent (download x86)
-#    win_copy:
-#      src: files/agent_x86.msi
-#      dest: "c:\\Downloads\\agent.msi"
-#    when: ansible_architecture == "32-bit"
-
-#  - name: ESET Agent (download x64)
-#    win_copy:
-#      src: files/agent_x64.msi
-#      dest: "c:\\Downloads\\agent.msi"
-#    when: ansible_architecture == "64-bit"
-
-#  - name: ESET Agent (install)
-#    win_package:
-#      path: "c:\\Downloads\\agent.msi"
-#      arguments:
-#        - /quiet
 
 

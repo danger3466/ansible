@@ -1,6 +1,6 @@
 ---
 - name: Installs
-  hosts: WINDOWS
+  hosts: all
 
   tasks:
 
