@@ -111,11 +111,17 @@
     win_command: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\winrar.exe /s"
     when: not (winrar.stat.exists or winrar_x86.stat.exists)
 
+#  - name: "Find ESET Uninstaller (Check C:\\Program Files\\ESET\\ESET Endpoint Security\\callmsi.exe)"
+#    win_stat: path="C:\\Program Files\\ESET\\ESET Endpoint Security\\callmsi.exe"
+#    register: eset_uninstaller
 
-  - name: Uninstall ESET Endpoint Security 5
-    win_package:
-      product_id: '{47A99185-5A10-475E-ACFD-34F654E201D1}'
-      state: absent
+#  - debug:
+#      var: eset_uninstaller
+
+#  - name: Uninstall ESET Endpoint Security 5
+#    win_package:
+#      product_id: '{47A99185-5A10-475E-ACFD-34F654E201D1}'
+#      state: absent
 
   - name: ESET Agent (config)
     win_copy:
@@ -144,12 +150,7 @@
       executable: cmd
     when: not eset_agent.stat.exists
 
-#  - name: ESET Endpoint Antivirus (choco)
-#    win_chocolatey:
-#      name: eset-antivirus
-#      state: present
-
-#  - name: Install windows updates for ESET
+#  - name: Install windows updates for ESET Endpoint 7
 #    win_updates:
 #      whitelist:
 #        - KB4474419
@@ -189,10 +190,6 @@
   hosts: OFFICE
 
   tasks:
-#  - name: 1C:Предприятие 8 (8.3.15.1565)
-#    win_package:
-#      product_id: '{49F75FA7-719B-429D-B44D-4C5D52254FFC}'
-#      state: absent
 
   - name: Google Chrome
     win_chocolatey:
@@ -228,4 +225,14 @@
       name: vlc
       state: present
 
+
+- name: Installs for 1C
+  hosts: 1C
+
+  tasks:
+
+#  - name: 1C:Предприятие 8 (8.3.15.1565)
+#    win_package:
+#      product_id: '{49F75FA7-719B-429D-B44D-4C5D52254FFC}'
+#      state: absent
 

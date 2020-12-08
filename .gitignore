@@ -5,3 +5,4 @@ files/*.msi
 files/install_config.ini
 hosts.txt
 group_vars/WINDOWS
+group_vars/location_OFFICE_os_WIN
