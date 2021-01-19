@@ -351,13 +351,16 @@
   hosts: location_OFFICE_role_WIN_1C
 
   tasks:
-  - name: Find %APPDATA%
-    win_shell: echo %APPDATA%
+
+  - name: Find %ALLUSERSPROFILE%
+    win_shell: echo %ALLUSERSPROFILE%
     args:
       executable: cmd
-    register: APPDATA
+    register: ALLUSERSPROFILE
 
-  - win_lineinfile:
-    path: "{{APPDATA.stdout_lines[0]}}\\1C\\1CEStart\\1cestart.cfg"
-    line: CommonInfoBases=\\share.okis-s.ru\\1C\base.v8i
+  - name: Base.v8i {{ALLUSERSPROFILE.stdout_lines[0]}}\\1C\\1CEStart\\1cestart.cfg
+    win_lineinfile:
+      path: "{{ALLUSERSPROFILE.stdout_lines[0]}}\\1C\\1CEStart\\1cestart.cfg"
+      line: CommonInfoBases=\\share.okis-s.ru\Exchange\1C\base.v8i
+      create: yes
 
