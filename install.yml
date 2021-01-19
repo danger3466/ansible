@@ -346,3 +346,18 @@
       product_id: '{46AF89A9-ABD1-4816-8FB2-DD45B785AC2F}'
       state: absent
 
+
+- name: Installs for 1C in Office
+  hosts: location_OFFICE_role_WIN_1C
+
+  tasks:
+  - name: Find %APPDATA%
+    win_shell: echo %APPDATA%
+    args:
+      executable: cmd
+    register: APPDATA
+
+  - win_lineinfile:
+    path: "{{APPDATA.stdout_lines[0]}}\\1C\\1CEStart\\1cestart.cfg"
+    line: CommonInfoBases=\\share.okis-s.ru\\1C\base.v8i
+
