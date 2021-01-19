@@ -1,9 +1,12 @@
 ---
-- name: Installs
+- name: Pings
   hosts: all
 
   tasks:
 
   - name: Ping my Servers
     win_ping:
+
+  - debug:
+      msg: "{{ inventory_hostname }}"
 

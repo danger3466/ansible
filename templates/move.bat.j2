@@ -1,0 +1,9 @@
+set CURDATE=%DATE%
+
+set SRC_Desktop=C:\Users\{{ win_user }}\Desktop\
+set DEST=\\smb-ext.okis-s.ru\{{ smb_user }}\Archive\%CURDATE:~6,4%\%CURDATE:~3,2%\
+
+MKDIR %DEST%
+ROBOCOPY %SRC_Desktop% *.* %DEST% /MOVE /XF *.lnk /XF *.v8i
+
+MKDIR %SRC_Desktop%
