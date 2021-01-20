@@ -31,9 +31,9 @@
   - name: Don't sleep
     win_shell: powercfg -x standby-timeout-ac 0
 
-#  - name: Change the hostname
-#    win_hostname:
-#      name: "{{ inventory_hostname }}"
+  - name: Change the hostname
+    win_hostname:
+      name: "{{ inventory_hostname }}"
 
   - name: Change the workgroup
     win_domain_membership:
@@ -42,58 +42,50 @@
       domain_admin_user: ansible
       domain_admin_password: ''
 
-#  - debug:
-#      msg: "{{USERPROFILE}}"
-
   - name: Make Downloads folder
     win_file:
       path: "{{USERPROFILE.stdout_lines[0]}}\\Downloads"
       state: directory
-
-#  - name: Uninstall Google Update Helper
-#    win_package:
-#      product_id: '{60EC980A-BDA2-4CB6-A427-B07A5498B4CA}'
-#      state: absent
 
   - name: TightVNC
     win_chocolatey:
       name: tightvnc
       state: present
 
-#  - name: TightVNC (password)
-#    win_regedit:
-#      path: HKLM:\SOFTWARE\TightVNC\Server
-#      name: Password
-#      type: binary
-#      data: "{{ tightvnc_password }}"
-#    register: tightvnc
+  - name: TightVNC (password)
+    win_regedit:
+      path: HKLM:\SOFTWARE\TightVNC\Server
+      name: Password
+      type: binary
+      data: "{{ tightvnc_password }}"
+    register: tightvnc
 
-#  - name: TightVNC (ControlPassword)
-#    win_regedit:
-#      path: HKLM:\SOFTWARE\TightVNC\Server
-#      name: ControlPassword
-#      type: binary
-#      data: "{{ tightvnc_password }}"
+  - name: TightVNC (ControlPassword)
+    win_regedit:
+      path: HKLM:\SOFTWARE\TightVNC\Server
+      name: ControlPassword
+      type: binary
+      data: "{{ tightvnc_password }}"
 
-#  - name: TightVNC (PasswordViewOnly)
-#    win_regedit:
-#      path: HKLM:\SOFTWARE\TightVNC\Server
-#      name: PasswordViewOnly
-#      type: binary
-#      data: "{{ tightvnc_password }}"
+  - name: TightVNC (PasswordViewOnly)
+    win_regedit:
+      path: HKLM:\SOFTWARE\TightVNC\Server
+      name: PasswordViewOnly
+      type: binary
+      data: "{{ tightvnc_password }}"
 
-#  - name: TightVNC (UseVncAuthentication)
-#    win_regedit:
-#      path: HKLM:\SOFTWARE\TightVNC\Server
-#      name: UseVncAuthentication
-#      type: dword
-#      data: 1
+  - name: TightVNC (UseVncAuthentication)
+    win_regedit:
+      path: HKLM:\SOFTWARE\TightVNC\Server
+      name: UseVncAuthentication
+      type: dword
+      data: 1
 
-#  - name: TightVNC (restart)
-#    win_service:
-#      name: tvnserver
-#      state: restarted
-#    when: tightvnc.changed
+  - name: TightVNC (restart)
+    win_service:
+      name: tvnserver
+      state: restarted
+    when: tightvnc.changed
 
   - name: WinRAR (download x86)
     win_copy:
@@ -119,18 +111,6 @@
   - name: WinRAR (install)
     win_command: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\winrar.exe /s"
     when: not (winrar.stat.exists or winrar_x86.stat.exists)
-
-#  - name: "Find ESET Uninstaller (Check C:\\Program Files\\ESET\\ESET Endpoint Security\\callmsi.exe)"
-#    win_stat: path="C:\\Program Files\\ESET\\ESET Endpoint Security\\callmsi.exe"
-#    register: eset_uninstaller
-
-#  - debug:
-#      var: eset_uninstaller
-
-#  - name: Uninstall ESET Endpoint Security 5
-#    win_package:
-#      product_id: '{47A99185-5A10-475E-ACFD-34F654E201D1}'
-#      state: absent
 
   - name: ESET Agent (config)
     win_copy:
@@ -158,13 +138,6 @@
     args:
       executable: cmd
     when: not eset_agent.stat.exists
-
-#  - name: Install windows updates for ESET Endpoint 7
-#    win_updates:
-#      whitelist:
-#        - KB4474419
-#        - KB4490628
-#    when: ansible_distribution_major_version|int == 6
 
   - name: ESET Endpoint 7 (download x86)
     win_copy:
@@ -223,11 +196,6 @@
       name: firefox
       state: present
 
-#  - name: Thunderbird
-#    win_chocolatey:
-#      name: thunderbird
-#      state: present
-
   - name: "Adobe Reader DC (Check C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC)"     
     win_stat: path="C:\\Program Files (x86)\\Adobe\\Acrobat Reader DC"
     register: adobe_reader
@@ -241,11 +209,6 @@
       name: adobereader
       state: present
     when: not (adobe_reader.stat.exists or adobe_reader_x86.stat.exists)
-
-#  - name: VLC
-#    win_chocolatey:
-#      name: vlc
-#      state: present
 
   - name: Office Installer
     win_copy:
@@ -278,46 +241,53 @@
   hosts: 1C
 
   tasks:
-  - name: 1C:Предприятие 8 (x86) (8.3.17.1851)
+  - name: 1C:Предприятие 8 (x86) (download 8.3.17.1851)
     win_copy:
       src: files/windows_8_3_17_1851
       dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\"
-    when: ansible_architecture == "32-bit" or ansible_architecture == "32-разрядная"
+#    when: ansible_architecture == "32-bit" or ansible_architecture == "32-разрядная"
 
-  - name: 1C:Предприятие 8 (x86-64) (8.3.17.1851)
-    win_copy:
-      src: files/windows64full_8_3_17_1851
-      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\"
-    when: ansible_architecture == "64-bit" or ansible_architecture == "64-разрядная"
+#  - name: 1C:Предприятие 8 (x86-64) (download 8.3.17.1851)
+#    win_copy:
+#      src: files/windows64full_8_3_17_1851
+#      dest: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\"
+#    when: ansible_architecture == "64-bit" or ansible_architecture == "64-разрядная"
+
+  - name: Удаление 1C:Предприятие 8 (8.3.15.1565)
+    win_package:
+      product_id: '{49F75FA7-719B-429D-B44D-4C5D52254FFC}'
+      state: absent
+
+  - name: Удаление 1C:Предприятие 8 (x86-64) (8.3.16.1063)
+    win_package:
+      product_id: '{46AF89A9-ABD1-4816-8FB2-DD45B785AC2F}'
+      state: absent
+
+  - name: Удаление 1C:Предприятие 8 (8.3.16.1063)
+    win_package:
+      product_id: '{261BC555-1A04-43DF-B896-BC389420334E}'
+      state: absent
+
+  - name: Удаление 1C:Предприятие 8 (x86-64) (8.3.17.1851)
+    win_package:
+      product_id: '{CAF51AAE-D50F-4EF4-8E91-0E07544C521C}'
+      state: absent
+
+# {CAF51AAE-D50F-4EF4-8E91-0E07544C521C} 1C:Предприятие 8 (x86-64) (8.3.17.1851)
+# {E464A62A-6564-48FE-BFB1-F0B9D024C91A} 1C:Предприятие 8 (8.3.17.1851)
+# {261BC555-1A04-43DF-B896-BC389420334E} 1C:Предприятие 8 (8.3.16.1063)
+# {F92D4A04-D7B3-49CC-935D-37E5E5C09508} 1C:Enterprise 8.2 (8.2.19.130)
+
 
   - name: "1C:Предприятие 8 (Check C:\\Program Files\\1cv8\\8.3.17.1851\\bin\\1cv8.exe)"
     win_stat: path="C:\\Program Files\\1cv8\\8.3.17.1851\\bin\\1cv8.exe"
     register: onecv8
-
-#  - debug:
-#      var: onecv8
+    when: ansible_architecture == "32-bit" or ansible_architecture == "32-разрядная"
 
   - name: "1C:Предприятие 8 x86 (Check C:\\Program Files (x86)\\1cv8\\8.3.17.1851\\bin\\1cv8.exe)"     
     win_stat: path="C:\\Program Files (x86)\\1cv8\\8.3.17.1851\\bin\\1cv8.exe"
-    register: onecv8_x86
-    when: not onecv8.stat.exists
-
-  - name: 1C:Предприятие 8 (x86-64) (install)
-    win_package:
-      path: "{{USERPROFILE.stdout_lines[0]}}\\Downloads\\windows64full_8_3_17_1851\\1CEnterprise 8 (x86-64).msi"
-      arguments:
-        - /qn
-        - TRANSFORMS=adminstallrelogon.mst;1049.mst
-        - DESIGNERALLCLIENTS=1
-        - THINCLIENT=1
-        - WEBSERVEREXT=0
-        - SERVER=0
-        - CONFREPOSSERVER=0
-        - CONVERTER77=0
-        - SERVERCLIENT=0
-        - LANGUAGES=RU
-      state: present
-    when: (ansible_architecture == "64-bit" or ansible_architecture == "64-разрядная") and not (onecv8.stat.exists or onecv8_x86.stat.exists)
+    register: onecv8
+    when: ansible_architecture == "64-bit" or ansible_architecture == "64-разрядная"
 
   - name: 1C:Предприятие 8 (x86) (install)
     win_package:
@@ -334,17 +304,19 @@
         - SERVERCLIENT=0
         - LANGUAGES=RU
       state: present
-    when: (ansible_architecture == "32-bit" or ansible_architecture == "32-разрядная") and not (onecv8.stat.exists or onecv8_x86.stat.exists)
+    when: not onecv8.stat.exists
 
-  - name: Удаление 1C:Предприятие 8 (8.3.15.1565)
-    win_package:
-      product_id: '{49F75FA7-719B-429D-B44D-4C5D52254FFC}'
-      state: absent
+  - name: 1C:Предприятие 8 x64 (patch)
+    win_copy:
+      src: files/1c/x86/bin
+      dest: "C:\\Program Files (x86)\\1cv8\\8.3.17.1851\\"
+    when: ansible_architecture == "64-bit" or ansible_architecture == "64-разрядная"
 
-  - name: Удаление 1C:Предприятие 8 (x86-64) (8.3.16.1063)
-    win_package:
-      product_id: '{46AF89A9-ABD1-4816-8FB2-DD45B785AC2F}'
-      state: absent
+  - name: 1C:Предприятие 8 x86 (patch)
+    win_copy:
+      src: files/1c/x86/bin
+      dest: "C:\\Program Files\\1cv8\\8.3.17.1851\\"
+    when: ansible_architecture == "32-bit" or ansible_architecture == "32-разрядная"
 
 
 - name: Installs for 1C in Office
