@@ -286,7 +286,7 @@
 
   - name: "1C:Предприятие 8 x86 (Check C:\\Program Files (x86)\\1cv8\\8.3.17.1851\\bin\\1cv8.exe)"     
     win_stat: path="C:\\Program Files (x86)\\1cv8\\8.3.17.1851\\bin\\1cv8.exe"
-    register: onecv8
+    register: onecv8_x86
     when: ansible_architecture == "64-bit" or ansible_architecture == "64-разрядная"
 
   - name: 1C:Предприятие 8 (x86) (install)
@@ -304,7 +304,7 @@
         - SERVERCLIENT=0
         - LANGUAGES=RU
       state: present
-    when: not onecv8.stat.exists
+    when: not (onecv8.stat.exists or onecv8_x86.stat.exists)
 
   - name: 1C:Предприятие 8 x64 (patch)
     win_copy:
